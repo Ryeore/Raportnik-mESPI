@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: raportnik
+  datasource:
+    url: jdbc:postgresql://localhost:5432/raportnik
+    username: raportnik
+    password: raportnik
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER:http://localhost:9000}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+ingestion:
+  pap:
+    base-url: https://espiebi.pap.pl/
+    cron: "0 */5 * * * *"

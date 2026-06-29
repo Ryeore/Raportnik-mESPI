@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: raportnik
+      POSTGRES_USER: raportnik
+      POSTGRES_PASSWORD: raportnik
+    ports: ["5432:5432"]
+  backend:
+    build: ../backend
+    depends_on: [db]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/raportnik
+    ports: ["8080:8080"]
