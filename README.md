@@ -1,29 +1,44 @@
-# Raportnik
+# Raportnik (MVP v0.1)
 
-Mobilna aplikacja do śledzenia raportów ESPI z GPW (źródło: espiebi.pap.pl). Bez logowania.
+Mobile-first lightweight news reader for PAP Espiebi, focused on fast, clean
+consumption of breaking news in a scrollable feed.
 
-## Stack
-React Native + Expo · Expo Router · TypeScript · SQLite · TanStack Query · Zustand · NativeWind · Axios · Expo Notifications.
+## Structure
 
-## Struktura
+- `backend/` — Node.js (Express) API. Scrapes `espiebi.pap.pl`, normalizes
+  articles, caches for 5 min. Falls back to sample data when the source is
+  unreachable (the site is bot-protected). Exposes `GET /api/news`.
+- `app/` — Expo / React Native app. Feed screen + article screen, pull-to-refresh,
+  loading / empty / error states.
+
+## API contract
+
+`GET /api/news`
+
+```json
+{
+  "source": "espiebi.pap.pl",
+  "articles": [
+    { "id": "...", "title": "...", "url": "https://...", "publishedAt": "2026-06-29T10:00:00Z", "summary": "optional" }
+  ]
+}
 ```
-app/                 # Expo Router (tabs + report/[id])
-src/components/      # ReportCard, Skeleton, EmptyState
-src/screens/         # Feed, WatchedReports, Companies, Search, Settings, Detail
-src/services/        # EspiSource, EspiParser, EspiService, SyncManager
-src/database/        # db + ReportRepository, WatchedCompanyRepository, SettingsRepository
-src/hooks/           # React Query hooks + useAutoSync
-src/store/           # Zustand settings + theme
-src/types/, src/utils/, src/notifications/
-__tests__/           # parser, retention, repository
-```
 
-## Start
-```bash
+## Run
+
+Backend:
+```
+cd backend
 npm install
-npm start
-npm test
+npm start          # http://localhost:4000
 ```
 
-## Dane
-Tylko 30 dni lokalnie; dedupe po `id`; auto-sync co 30 min; powiadomienia o raportach obserwowanych spółek. Źródło wymienne przez `EspiSource`.
+App:
+```
+cd app
+npm install
+npm start          # press a (Android) or i (iOS) — mobile only
+```
+
+Physical device: set `EXPO_PUBLIC_API_URL` to your machine's LAN IP, e.g.
+`EXPO_PUBLIC_API_URL=http://192.168.1.10:4000 npm start`.
