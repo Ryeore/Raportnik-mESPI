@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "Raportnik",
+    "slug": "raportnik",
+    "scheme": "raportnik",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": false,
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": { "supportsTablet": false },
+    "android": { "package": "pl.pap.raportnik" },
+    "plugins": ["expo-router"]
+  }
+}
