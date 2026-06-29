@@ -1,11 +1,11 @@
-# Schemat bazy danych + model domenowy
+# Database schema + domain model
 
-## Model domenowy
-- **User** (aggregate root): tożsamość, ustawienia powiadomień, obserwowane spółki, historia czytań.
-- **Company**: emitent GPW (ticker, ISIN, nazwa).
-- **Report** (aggregate root): raport ESPI/EBI; należy do Company.
-- **Watchlist**: relacja User↔Company.
-- **ReadReceipt**: User przeczytał Report.
+## Domain model
+- **User** (aggregate root): identity, notification settings, watched companies, read history.
+- **Company**: WSE issuer (ticker, ISIN, name).
+- **Report** (aggregate root): ESPI/EBI report; belongs to Company.
+- **Watchlist**: User↔Company relation.
+- **ReadReceipt**: User has read a Report.
 
 ## ERD
 
@@ -26,7 +26,7 @@ erDiagram
   notification_settings { uuid user_id PK; string mode; string fcm_token; bool keywords_enabled }
 ```
 
-## DDL (skrót)
+## DDL (excerpt)
 ```sql
 CREATE TABLE companies (id uuid PRIMARY KEY, ticker varchar(16) UNIQUE, isin varchar(16), name varchar(255));
 CREATE TABLE reports (id uuid PRIMARY KEY, company_id uuid REFERENCES companies(id),
@@ -36,4 +36,4 @@ CREATE TABLE users (id uuid PRIMARY KEY, email varchar(255) UNIQUE, password_has
 CREATE TABLE watchlist (user_id uuid, company_id uuid, added_at timestamptz, PRIMARY KEY(user_id,company_id));
 CREATE TABLE read_receipts (user_id uuid, report_id uuid, read_at timestamptz, PRIMARY KEY(user_id,report_id));
 ```
-Partycjonowanie `reports` po `published_at` (miesięczne) dla skali.
+Partition `reports` by `published_at` (monthly) for scale.

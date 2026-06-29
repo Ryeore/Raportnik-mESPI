@@ -16,7 +16,7 @@ public class IngestionScheduler {
     @Scheduled(cron = "${ingestion.pap.cron}")
     public void run() {
         for (Report r : source.fetchLatest()) {
-            repo.saveIfAbsent(r); // idempotentnie po external_id
+            repo.saveIfAbsent(r); // idempotent by external_id
         }
     }
 }

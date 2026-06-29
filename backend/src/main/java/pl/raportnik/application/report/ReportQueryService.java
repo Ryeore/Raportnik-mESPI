@@ -8,7 +8,7 @@ import pl.raportnik.domain.report.ReportRepository;
 import java.util.List;
 import java.util.UUID;
 
-/** CQRS: strona odczytu (Query). */
+/** CQRS: read side (Query). */
 @Service
 public class ReportQueryService {
     private final ReportRepository repo;

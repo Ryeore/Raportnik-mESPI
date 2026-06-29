@@ -1,10 +1,10 @@
-# Architektura systemu
+# System architecture
 
-## 1. Przegląd
+## 1. Overview
 
-Raportnik to system rozproszony oparty o Clean Architecture + DDD. Backend stosuje CQRS (oddzielenie zapisu od odczytu) i Repository Pattern. Pozyskiwanie danych z PAP odbywa się przez wymienialny `ReportIngestionSource` (scraper → API).
+Raportnik is a distributed system based on Clean Architecture + DDD. The backend uses CQRS (separating writes from reads) and the Repository Pattern. Data ingestion from PAP is done through a swappable `ReportIngestionSource` (scraper → API).
 
-## 2. Diagram komponentów
+## 2. Component diagram
 
 ```mermaid
 graph TD
@@ -38,30 +38,30 @@ graph TD
   AUTH --> PG
 ```
 
-## 3. Warstwy (Clean Architecture)
+## 3. Layers (Clean Architecture)
 
 ```
-domain        -> encje, agregaty, reguły (zero zależności)
-application   -> use-case'y, CQRS handlers, porty (interfejsy)
-infrastructure-> repozytoria JPA, scraper, FCM, security
-api           -> kontrolery REST, DTO, mappery
+domain        -> entities, aggregates, rules (zero dependencies)
+application   -> use cases, CQRS handlers, ports (interfaces)
+infrastructure-> JPA repositories, scraper, FCM, security
+api           -> REST controllers, DTOs, mappers
 ```
 
-Zależności kierowane do środka: `api -> application -> domain`, `infrastructure` implementuje porty z `application`.
+Dependencies point inward: `api -> application -> domain`, `infrastructure` implements ports from `application`.
 
-## 4. Przepływ ingestion + push
+## 4. Ingestion + push flow
 
 ```mermaid
 sequenceDiagram
   ING->>PAP: fetch ESPI/EBI (cron)
-  PAP-->>ING: nowe raporty
-  ING->>PG: zapis (dedup po external_id)
-  ING->>NOTIF: nowy raport dla obserwujących
+  PAP-->>ING: new reports
+  ING->>PG: save (dedup by external_id)
+  ING->>NOTIF: new report for followers
   NOTIF->>FCM: push (immediate / digest)
-  FCM-->>M: powiadomienie
+  FCM-->>M: notification
 ```
 
-## 5. Niezawodność
-- Retry z backoff + dead-letter dla ingestion.
-- Idempotencja po `external_id`.
-- Monitoring: Actuator + Prometheus + Grafana; logi JSON do Loki.
+## 5. Reliability
+- Retry with backoff + dead-letter for ingestion.
+- Idempotency by `external_id`.
+- Monitoring: Actuator + Prometheus + Grafana; JSON logs to Loki.

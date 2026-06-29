@@ -1,13 +1,13 @@
 # Raportnik
 
-Aplikacja mobilna do monitorowania raportów **ESPI/EBI** spółek notowanych na GPW.
-Użytkownik otrzymuje w czasie rzeczywistym raporty wybranych spółek oraz wygodnie je filtruje i przegląda.
+Mobile app for monitoring **ESPI/EBI** reports of companies listed on the WSE (GPW).
+Users receive real-time reports of selected companies and conveniently filter and browse them.
 
-> Źródło danych: https://espiebi.pap.pl/ (start: scraper, docelowo: oficjalne API). Warstwa pobierania jest abstrahowana, więc zmiana źródła nie wymaga zmian w domenie.
+> Data source: https://espiebi.pap.pl/ (start: scraper, eventually: official API). The ingestion layer is abstracted, so changing the source does not require changes in the domain.
 
 ## Stack
 
-| Warstwa | Technologia |
+| Layer | Technology |
 |---|---|
 | Frontend | React Native (Expo) + TypeScript |
 | Backend | Spring Boot 3 + Java 21 |
@@ -23,26 +23,26 @@ Użytkownik otrzymuje w czasie rzeczywistym raporty wybranych spółek oraz wygo
 Raportnik-mESPI/
 ├── backend/        # Spring Boot 3, Java 21, Clean Arch + CQRS + DDD
 ├── mobile/         # Expo + TS, feature-first clean architecture
-├── docs/           # Architektura, DB, API, backlog, skalowanie, koszty, monetyzacja
+├── docs/           # Architecture, DB, API, backlog, scaling, cost, monetization
 ├── infra/          # docker-compose, k8s manifests
 └── .github/        # CI/CD
 ```
 
-## Dokumentacja
+## Documentation
 
-- [Architektura systemu + diagramy](docs/ARCHITECTURE.md)
-- [Schemat bazy danych + model domenowy](docs/DATABASE.md)
+- [System architecture + diagrams](docs/ARCHITECTURE.md)
+- [Database schema + domain model](docs/DATABASE.md)
 - [REST API](docs/API.md)
-- [User Stories + Backlog/Sprinty](docs/BACKLOG.md)
-- [Skalowanie, koszty, monetyzacja](docs/SCALING_COST_MONETIZATION.md)
-- [Ekrany UI](docs/UI.md)
+- [User Stories + Backlog/Sprints](docs/BACKLOG.md)
+- [Scaling, cost, monetization](docs/SCALING_COST_MONETIZATION.md)
+- [UI screens](docs/UI.md)
 
-## Szybki start
+## Quick start
 
 ```bash
 # infra (db + backend)
 docker compose -f infra/docker-compose.yml up -d
-# backend lokalnie
+# backend locally
 cd backend && ./mvnw spring-boot:run
 # mobile
 cd mobile && npm install && npx expo start

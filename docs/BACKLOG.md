@@ -1,20 +1,20 @@
 # User Stories + Backlog MVP
 
 ## User Stories
-- US1: Jako użytkownik rejestruję się emailem lub Google/Apple, by mieć konto.
-- US2: Wyszukuję spółki GPW i dodaję/usuwam z obserwowanych.
-- US3: Przeglądam feed raportów z infinite scroll i pull-to-refresh, grupowany po dniach.
-- US4: Filtruję feed (obserwowane / typ / daty / słowa kluczowe).
-- US5: Otwieram szczegóły raportu, oznaczam jako przeczytany, udostępniam.
-- US6: Dostaję push o nowym raporcie obserwowanej spółki (immediate/digest).
-- US7: Zarządzam profilem: obserwowane, historia, ustawienia powiadomień.
+- US1: As a user, I register with email or Google/Apple to have an account.
+- US2: I search WSE companies and add/remove them from my watchlist.
+- US3: I browse the report feed with infinite scroll and pull-to-refresh, grouped by day.
+- US4: I filter the feed (watched / type / dates / keywords).
+- US5: I open report details, mark them as read, and share them.
+- US6: I receive a push notification about a new report of a watched company (immediate/digest).
+- US7: I manage my profile: watchlist, history, notification settings.
 
-## Sprinty (2-tyg.)
-- **S1 — Fundament:** repo, CI/CD, DB, auth (email+JWT), encje Company/Report. (US1)
-- **S2 — Spółki + feed:** watchlist, feed + paginacja, scraper PAP v1. (US2, US3)
-- **S3 — Filtry + szczegóły:** filtrowanie, detail, mark-read, share. (US4, US5)
-- **S4 — Push:** FCM, immediate + daily digest, ustawienia. (US6, US7)
-- **S5 — Hardening:** testy, monitoring, beta release.
+## Sprints (2 weeks)
+- **S1 — Foundation:** repo, CI/CD, DB, auth (email+JWT), Company/Report entities. (US1)
+- **S2 — Companies + feed:** watchlist, feed + pagination, PAP scraper v1. (US2, US3)
+- **S3 — Filters + details:** filtering, detail, mark-read, share. (US4, US5)
+- **S4 — Push:** FCM, immediate + daily digest, settings. (US6, US7)
+- **S5 — Hardening:** tests, monitoring, beta release.
 
-## Roadmapa
-AI summary, sentyment, alerty słów kluczowych, widget, sync watchlist, ranking spółek.
+## Roadmap
+AI summary, sentiment, keyword alerts, widget, watchlist sync, company ranking.
