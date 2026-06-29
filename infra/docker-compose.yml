@@ -2,13 +2,15 @@ services:
   db:
     image: postgres:16
     environment:
-      POSTGRES_DB: raportnik
-      POSTGRES_USER: raportnik
-      POSTGRES_PASSWORD: raportnik
+      POSTGRES_DB: ${POSTGRES_DB:-raportnik}
+      POSTGRES_USER: ${POSTGRES_USER:-raportnik}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
     ports: ["5432:5432"]
   backend:
     build: ../backend
     depends_on: [db]
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/raportnik
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-raportnik}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-raportnik}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
     ports: ["8080:8080"]

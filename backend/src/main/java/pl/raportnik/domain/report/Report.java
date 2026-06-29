@@ -3,7 +3,7 @@ package pl.raportnik.domain.report;
 import java.time.Instant;
 import java.util.UUID;
 
-/** Aggregate root: raport ESPI/EBI. Bez zależności frameworkowych. */
+/** Aggregate root: ESPI/EBI report. No framework dependencies. */
 public record Report(
         UUID id,
         UUID companyId,

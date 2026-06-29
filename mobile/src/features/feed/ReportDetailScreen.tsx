@@ -8,7 +8,7 @@ export default function ReportDetailScreen({ route }: any) {
       <Text style={{ fontSize: 18, fontWeight: '700' }}>{r.title}</Text>
       <Text style={{ color: '#888', marginVertical: 8 }}>{r.type} • {r.number} • {new Date(r.publishedAt).toLocaleString()}</Text>
       <Text>{r.body}</Text>
-      <Button title="Udostępnij" onPress={() => Share.share({ message: r.title })} />
+      <Button title="Share" onPress={() => Share.share({ message: r.title })} />
     </ScrollView>
   );
 }
