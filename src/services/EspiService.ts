@@ -1,8 +1,8 @@
-import axios from "axios";
 import { EspiReport } from "@/types";
 import { PAGE_SIZE, MAX_PAGES_PER_DATE, searchPageUrl } from "@/utils/constants";
 import { EspiSource } from "./EspiSource";
 import { parseListHtml } from "./EspiParser";
+import { fetchHtml } from "./PapWebFetcher";
 import { ReportRepository } from "@/database/ReportRepository";
 
 /** Default source: scrapes espiebi.pap.pl (no public API). Replaceable via DI. */
@@ -13,11 +13,8 @@ class PapSource implements EspiSource {
     const all: EspiReport[] = [];
 
     for (let page = 0; page < MAX_PAGES_PER_DATE; page++) {
-      const { data } = await axios.get<string>(searchPageUrl(dateIso, page), {
-        timeout: 15000,
-        responseType: "text"
-      });
-      const reports = parseListHtml(typeof data === "string" ? data : "", dateIso);
+      const html = await fetchHtml(searchPageUrl(dateIso, page));
+      const reports = parseListHtml(html, dateIso);
       if (reports.length === 0) break;
       all.push(...reports);
     }

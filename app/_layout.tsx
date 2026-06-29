@@ -5,6 +5,7 @@ import * as Notifications from "expo-notifications";
 import { initDatabase } from "@/database/db";
 import { useSettingsStore } from "@/store/settingsStore";
 import { requestNotificationPermission } from "@/notifications/notifications";
+import { PapBrowser } from "@/components/PapBrowser";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 60_000, gcTime: 5 * 60_000 } }
@@ -35,6 +36,7 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="report/[id]" options={{ headerShown: true, title: "Raport", presentation: "card" }} />
       </Stack>
+      <PapBrowser />
     </QueryClientProvider>
   );
 }
