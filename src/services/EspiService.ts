@@ -1,7 +1,7 @@
 import { EspiReport } from "@/types";
 import { PAGE_SIZE, MAX_PAGES_PER_DATE, searchPageUrl } from "@/utils/constants";
 import { EspiSource } from "./EspiSource";
-import { parseListHtml } from "./EspiParser";
+import { parseListHtml, parseNodeContent } from "./EspiParser";
 import { fetchHtml } from "./PapWebFetcher";
 import { ReportRepository } from "@/database/ReportRepository";
 
@@ -37,13 +37,18 @@ class EspiServiceImpl {
   searchReports(query: string) {
     return ReportRepository.search(query, PAGE_SIZE, 0);
   }
-
-  /** Fetches, dedupes, persists, prunes >30d. Returns new report ids. */
   async syncReports(): Promise<string[]> {
     const reports = await this.source.fetchLatest();
     const newIds = ReportRepository.upsertMany(reports);
     ReportRepository.prune();
     return newIds;
+  }
+
+  /** Fetches the full report body from its node page (lazy, on detail open). */
+  async fetchReportContent(url: string): Promise<string> {
+    if (!url) return "";
+    const html = await fetchHtml(url);
+    return parseNodeContent(html);
   }
 }
 

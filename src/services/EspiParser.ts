@@ -83,3 +83,31 @@ export function parseListHtml(html: string, dateIso: string, now: Date = new Dat
 
   return reports.filter((r) => isWithinRetention(r.publishDate, now));
 }
+
+/**
+ * Extracts the readable report body from a node page. Prefers the "Tresc
+ * raportu" section; falls back to the main content area. Returns plain text.
+ */
+export function parseNodeContent(html: string): string {
+  const sheets = html.match(/<div[^>]*class="[^"]*\barkusz\b[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/div>/gi);
+  const source = sheets && sheets.length ? sheets.join("\n") : html;
+
+  let text = source
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<\/(p|div|tr|li|br|td)>/gi, "\n")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+
+  const marker = text.search(/Tre[sś][cć] raportu/i);
+  if (marker >= 0) text = text.slice(marker).replace(/^Tre[sś][cć] raportu:?\s*/i, "").trim();
+
+  return text;
+}
+
