@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, Text, View } from "react-native";
 import { EspiReport } from "@/types";
-import { formatDate } from "@/utils/date";
+import { formatDateTimeCompact } from "@/utils/date";
 import { useTheme } from "@/store/theme";
 
 interface Props {
@@ -25,7 +25,7 @@ function ReportCardBase({ report, isNew, onPress }: Props) {
         <Text style={{ color: t.accent, fontWeight: "700", flex: 1 }} numberOfLines={1}>
           {report.companyName || report.ticker}
         </Text>
-        <Text style={{ color: t.sub, fontSize: 12, marginLeft: 8 }}>{formatDate(report.publishDate)}</Text>
+        <Text style={{ color: t.sub, fontSize: 11, marginLeft: 8 }} numberOfLines={1}>{formatDateTimeCompact(report.publishDate)}</Text>
       </View>
       <Text style={{ color: t.text, fontWeight: "600", marginTop: 4 }} numberOfLines={2}>
         {title}

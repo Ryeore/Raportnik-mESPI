@@ -63,13 +63,17 @@ export function parseListHtml(html: string, dateIso: string, now: Date = new Dat
     const url = fullUrl(anchor?.[1] ?? "");
     const title = anchor ? stripTags(anchor[2]) : "";
 
-    if (!newsId || !title) continue;
+    // The node URL (/node/12345) is the stable numeric id; the second .hour
+    // holds the human report number (e.g. "12/2026").
+    const nodeId = url.match(/\/node\/(\d+)/)?.[1] ?? "";
+    const id = nodeId || newsId;
+    if (!id || !title) continue;
 
     reports.push({
-      id: newsId,
+      id,
       companyName: companyFromTitle(title),
       ticker: "",
-      reportNumber: "",
+      reportNumber: newsId,
       publishDate: new Date(`${dateIso}T${time}:00`).toISOString(),
       title,
       content: source,
