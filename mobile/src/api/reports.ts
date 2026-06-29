@@ -1,21 +1,17 @@
-import axios from 'axios';
+import { queryReports } from '../features/reports/repository';
+import { syncReports } from '../features/reports/sync';
+import { Report, ReportType } from '../features/reports/types';
 
-export type ReportType = 'ESPI' | 'EBI';
-export interface Report {
-  id: string;
-  companyId: string;
-  type: ReportType;
-  number: string;
-  title: string;
-  body: string;
-  publishedAt: string;
+export type { Report, ReportType };
+
+/** Read a page from the local SQLite cache; cursor is a published_at epoch ms. */
+export async function fetchFeed(params: {
+  type?: ReportType; q?: string; cursor?: number; size?: number;
+}): Promise<Report[]> {
+  return queryReports(params);
 }
 
-const api = axios.create({ baseURL: process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1' });
-
-export async function fetchFeed(params: {
-  watchedOnly?: boolean; type?: ReportType; q?: string; cursor?: string; size?: number;
-}): Promise<Report[]> {
-  const { data } = await api.get<Report[]>('/reports', { params });
-  return data;
+/** Trigger an on-device sync from PAP into SQLite. */
+export async function refreshFeed(): Promise<void> {
+  await syncReports();
 }
