@@ -1,15 +1,28 @@
 import axios from "axios";
 import { EspiReport } from "@/types";
-import { SOURCE_BASE_URL, PAGE_SIZE } from "@/utils/constants";
+import { PAGE_SIZE, MAX_PAGES_PER_DATE, searchPageUrl } from "@/utils/constants";
 import { EspiSource } from "./EspiSource";
-import { parseReports, RawPapItem } from "./EspiParser";
+import { parseListHtml } from "./EspiParser";
 import { ReportRepository } from "@/database/ReportRepository";
 
-/** Default source: espiebi.pap.pl. Replaceable via constructor injection. */
+/** Default source: scrapes espiebi.pap.pl (no public API). Replaceable via DI. */
 class PapSource implements EspiSource {
+  /** Scrapes today's search results, paging until a page has no reports. */
   async fetchLatest(): Promise<EspiReport[]> {
-    const { data } = await axios.get<RawPapItem[]>(`${SOURCE_BASE_URL}/api/reports`, { timeout: 15000 });
-    return parseReports(Array.isArray(data) ? data : []);
+    const dateIso = new Date().toISOString().slice(0, 10);
+    const all: EspiReport[] = [];
+
+    for (let page = 0; page < MAX_PAGES_PER_DATE; page++) {
+      const { data } = await axios.get<string>(searchPageUrl(dateIso, page), {
+        timeout: 15000,
+        responseType: "text"
+      });
+      const reports = parseListHtml(typeof data === "string" ? data : "", dateIso);
+      if (reports.length === 0) break;
+      all.push(...reports);
+    }
+
+    return all;
   }
 }
 

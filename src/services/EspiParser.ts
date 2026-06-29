@@ -1,33 +1,81 @@
 import { EspiReport } from "@/types";
 import { isWithinRetention } from "@/utils/date";
+import { SOURCE_BASE_URL } from "@/utils/constants";
 
 /**
- * Parses the raw PAP/ESPI list payload into domain reports. Kept pure and
- * source-shape-specific so it can be unit tested in isolation.
+ * Parses the espiebi.pap.pl search listing HTML into domain reports. The site
+ * has no public API, so we scrape the `wyszukiwarka` results page. Logic mirrors
+ * https://github.com/wegar-2/pyespiebipapapi (li.news -> badge / hour / anchor).
+ *
+ * Kept pure and source-shape-specific so it can be unit tested in isolation.
  */
-export interface RawPapItem {
-  id?: string | number;
-  ticker?: string;
-  company?: string;
-  number?: string;
-  date?: string;
-  title?: string;
-  body?: string;
-  link?: string;
+const NEWS_ITEM = /<li[^>]*class="[^"]*\bnews\b[^"]*"[^>]*>([\s\S]*?)<\/li>/gi;
+const BADGE = /class="[^"]*\bbadge\b[^"]*"[^>]*>([\s\S]*?)<\/[^>]+>/i;
+const HOUR = /class="[^"]*\bhour\b[^"]*"[^>]*>([\s\S]*?)<\/div>/gi;
+const ANCHOR = /<a[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i;
+
+function stripTags(html: string): string {
+  return html
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
-export function parseReports(raw: RawPapItem[], now: Date = new Date()): EspiReport[] {
-  return raw
-    .filter((i) => i && i.id != null && i.date)
-    .map((i) => ({
-      id: String(i.id),
-      companyName: (i.company ?? "").trim(),
-      ticker: (i.ticker ?? "").trim().toUpperCase(),
-      reportNumber: (i.number ?? "").trim(),
-      publishDate: new Date(i.date as string).toISOString(),
-      title: (i.title ?? "").trim(),
-      content: (i.body ?? "").trim(),
-      url: i.link ?? ""
-    }))
-    .filter((r) => isWithinRetention(r.publishDate, now));
+function fullUrl(node: string): string {
+  if (!node) return "";
+  if (/^https?:\/\//.test(node)) return node;
+  return `${SOURCE_BASE_URL}/${node.replace(/^\//, "")}`;
+}
+
+/** Title commonly looks like "KGHM Polska Miedz: ...". Derive a company name. */
+function companyFromTitle(title: string): string {
+  const colon = title.indexOf(":");
+  return colon > 0 ? title.slice(0, colon).trim() : "";
+}
+
+/**
+ * Parses one search-results page for a given date (YYYY-MM-DD). Each `li.news`
+ * yields source (ESPI/EBI), a time, a news id, a title and a node URL.
+ */
+export function parseListHtml(html: string, dateIso: string, now: Date = new Date()): EspiReport[] {
+  const reports: EspiReport[] = [];
+  let match: RegExpExecArray | null;
+  NEWS_ITEM.lastIndex = 0;
+
+  while ((match = NEWS_ITEM.exec(html)) !== null) {
+    const block = match[1];
+
+    const badge = BADGE.exec(block);
+    const source = badge ? stripTags(badge[1]).toUpperCase() : "";
+
+    HOUR.lastIndex = 0;
+    const hours: string[] = [];
+    let h: RegExpExecArray | null;
+    while ((h = HOUR.exec(block)) !== null) hours.push(stripTags(h[1]));
+    const time = hours[0] ?? "00:00";
+    const newsId = hours[1] ?? "";
+
+    const anchor = ANCHOR.exec(block);
+    const url = fullUrl(anchor?.[1] ?? "");
+    const title = anchor ? stripTags(anchor[2]) : "";
+
+    if (!newsId || !title) continue;
+
+    reports.push({
+      id: newsId,
+      companyName: companyFromTitle(title),
+      ticker: "",
+      reportNumber: "",
+      publishDate: new Date(`${dateIso}T${time}:00`).toISOString(),
+      title,
+      content: source,
+      url
+    });
+  }
+
+  return reports.filter((r) => isWithinRetention(r.publishDate, now));
 }
